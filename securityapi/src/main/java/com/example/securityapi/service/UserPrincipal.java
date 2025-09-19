@@ -26,13 +26,15 @@ public class UserPrincipal implements UserDetails {
     this.username = username;
     this.email = email;
     this.password = password;
-    this.authorities = authorities == null
-        ? Collections.emptyList()
-        : Collections.unmodifiableList(new ArrayList<>(authorities));
+    this.authorities =
+        authorities == null
+            ? Collections.emptyList()
+            : Collections.unmodifiableList(new ArrayList<>(authorities));
   }
 
   public static UserPrincipal create(User user) {
-    Collection<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+    Collection<GrantedAuthority> authorities =
+        Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
 
     return new UserPrincipal(
         user.getId(), user.getUsername(), user.getEmail(), user.getPassword(), authorities);

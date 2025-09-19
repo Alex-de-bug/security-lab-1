@@ -33,7 +33,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build + SpotBugs
-        run: cd ./security-rest-api && mvn -B verify -DskipTests
+        run: cd ./securityapi && mvn -B verify spotbugs:check 
 
       - name: Set up Snyk CLI
         uses: snyk/actions/setup@master

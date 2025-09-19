@@ -4,8 +4,7 @@ import org.owasp.encoder.Encode;
 
 public final class Sanitizer {
 
-  private Sanitizer() {
-  }
+  private Sanitizer() {}
 
   public static String forHtml(String input) {
     if (input == null) {
