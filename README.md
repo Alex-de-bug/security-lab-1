@@ -81,19 +81,6 @@ export JWT_SECRET=...; export JWT_EXPIRATION=3600000
     ```json
     { "title":"<b>Hello</b>", "content":"Hi <script>alert(1)</script>" }
     ```
-  - Ответ (200):
-    ```json
-    {
-      "message": "Post created successfully",
-      "post": {
-        "id": 1,
-        "title": "&lt;b&gt;Hello&lt;/b&gt;",
-        "content": "Hi &lt;script&gt;alert(1)&lt;/script&gt;",
-        "createdAt": "2025-09-19T12:00:00",
-        "authorUsername": "admin"
-      }
-    }
-    ```
 
 - GET `/api/posts/my` — посты текущего пользователя.
 
