@@ -1,22 +1,21 @@
 # Информационная безопасность. Работа 1. P3412. Дениченко А. О.
 
 ## Разработка защищенного REST API с интеграцией в CI/CD (Spring Boot 3)
-REST‑сервис с аутентификацией по JWT, демо CRUD над сущностью `Post` и базовыми мерами защиты от SQL‑инъекций и XSS.
+REST‑сервис с аутентификацией по JWT, CRUD над сущностью `Post` и базовыми мерами защиты от SQL‑инъекций и XSS.
 
 ### Технологии
-- **Spring Boot 3**, **Spring Security 6**, **Spring Data JPA (Hibernate)**
+- **Spring Boot**, **Spring Data JPA (Hibernate)**
 - **H2** (in-memory)
 - **JWT** HS256
 - **OWASP Java Encoder** для экранирования (XSS)
 - **BCrypt** для хеширования паролей
-- **springdoc-openapi** (Swagger UI)
 
 ## Быстрый старт
 1) Требуется JDK 17+.
 
 2) Запуск:
 ```bash
-cd simpleapi
+cd securityapi
 ./mvnw spring-boot:run
 ```
 Приложение слушает `http://localhost:8080`.
@@ -36,9 +35,11 @@ H2 Console: `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:testdb`, 
 
 Примеры:
 ```bash
+cd securityapi
 ./mvnw spring-boot:run -Dspring-boot.run.arguments="--jwt.secret=... --jwt.expiration=3600000"
 # или через переменные окружения
 export JWT_SECRET=...; export JWT_EXPIRATION=3600000
+./mvnw spring-boot:run
 ```
 
 ## API
@@ -96,7 +97,9 @@ export JWT_SECRET=...; export JWT_EXPIRATION=3600000
 
 - GET `/api/posts/my` — посты текущего пользователя.
 
+
 - GET `/api/profile` — профиль текущего пользователя.
+
 
 ## Реализованные меры защиты
 
@@ -105,6 +108,7 @@ export JWT_SECRET=...; export JWT_EXPIRATION=3600000
 - **Политика доступа**: открыт `/auth/**`, Swagger и H2; остальное — аутентификация (`WebSecurityConfig`).
 - **Подпись и проверка токенов**: HS256, тип `access`, срок из `jwt.expiration` (`JwtUtils`).
 - **Пароли**: хеш `BCrypt` (см. `PasswordEncoder`).
+- **Защита от брутфорса**: блокировка после 5 неудачных попыток на 15 минут (`LoginAttemptService`).
 - **Stateless**: `SessionCreationPolicy.STATELESS`.
 
 ### Защита от SQL‑инъекций
@@ -113,27 +117,19 @@ export JWT_SECRET=...; export JWT_EXPIRATION=3600000
 - **Валидация**: DTO помечены `@Valid` (ошибки — 400).
 
 ### Защита от XSS
-- **Экранирование**: текстовые поля (`title`, `content`) кодируются OWASP Java Encoder в `Sanitizer` перед сохранением/отдачей.
-- **JSON‑ответы**: принцип encode‑on‑output сохраняется при дальнейшем отображении в HTML/DOM на клиенте.
+- **Экранирование**: текстовые поля (`title`, `content`) кодируются OWASP Java Encoder через `Sanitizer.forHtml()` перед сохранением в базу данных.
+- **JSON‑ответы**: экранированный контент возвращается в JSON-ответах, что обеспечивает безопасность при отображении в HTML/DOM на клиенте.
 
-### Прочее
-- **Swagger/OpenAPI**: авто‑документация (`/swagger-ui.html`).
-- **H2**: in‑memory БД для простого запуска; демо‑данные (`DataInitializer`).
+
 
 ## Отчёты SAST/SCA
 SCA-анализ зависимостей выполнен Snyk:
-- Начальный отчёт с найденными уязвимостями: `simpleapi/src/main/resources/snyk-report-2.json`
-- Финальный отчёт без уязвимостей: `simpleapi/src/main/resources/snyk-report-3.json`
+- Финальный отчёт без уязвимостей: `securityapi/src/main/resources/snyk-report.json`
 
-SAST-анализ зависимостей выполнен :
-- Начальный отчёт с найденными уязвимостями: `simpleapi/src/main/resources/spotbugsXml.xml`
+SAST-анализ выполнен SpotBugs:
+- Начальный отчёт с найденными уязвимостями: `securityapi/src/main/resources/spotbugsXml(0).xml` (4 уязвимости)
+- Финальный отчёт без уязвимостей: `securityapi/src/main/resources/spotbugsXml(1).xml` (0 уязвимостей)
 
-total_bugs='0'
-
-## Известные ограничения
-- Нет обновления/удаления постов (только создание и чтение).
-- Единая роль для всех аутентифицированных пользователей.
-- Нет refresh‑токенов/отзыва токенов.
 
 ## Полезные ссылки
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
